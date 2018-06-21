@@ -419,7 +419,7 @@ grpc_ssl_channel_security_connector_create(
 
   const char* pem_root_certs;
   const tsi_ssl_root_certs_store* root_store;
-  if (config->pem_root_certs == nullptr) {
+  if (config->pem_root_certs == nullptr && config->server_request_type == TSI_REQUEST_SERVER_CERTIFICATE_AND_VERIFY) {
     // Use default root certificates.
     pem_root_certs = grpc_core::DefaultSslRootStore::GetPemRootCerts();
     if (pem_root_certs == nullptr) {
