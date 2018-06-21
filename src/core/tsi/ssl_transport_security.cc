@@ -1976,7 +1976,16 @@ tsi_result tsi_create_ssl_client_handshaker_factory_with_options(
       gpr_log(GPR_INFO, "enabled client side CRL checking.");
     }
   }
+
 #endif
+  switch (options->server_certificate_request) {
+  case TSI_REQUEST_SERVER_CERTIFICATE_BUT_DONT_VERIFY:
+    SSL_CTX_set_verify(ssl_context, SSL_VERIFY_NONE, nullptr);
+    break;
+  case TSI_REQUEST_SERVER_CERTIFICATE_AND_VERIFY:
+    SSL_CTX_set_verify(ssl_context, SSL_VERIFY_PEER, nullptr);
+    break;
+  }
 
   *factory = impl;
   return TSI_OK;

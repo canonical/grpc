@@ -119,6 +119,7 @@ class grpc_ssl_channel_security_connector final
     options.session_cache = ssl_session_cache;
     options.min_tls_version = grpc_get_tsi_tls_version(config->min_tls_version);
     options.max_tls_version = grpc_get_tsi_tls_version(config->max_tls_version);
+    options.server_certificate_request = config->server_request_type;
     const tsi_result result =
         tsi_create_ssl_client_handshaker_factory_with_options(
             &options, &client_handshaker_factory_);

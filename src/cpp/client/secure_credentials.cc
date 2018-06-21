@@ -129,10 +129,9 @@ std::shared_ptr<ChannelCredentials> SslCredentials(
   grpc_ssl_pem_key_cert_pair pem_key_cert_pair = {
       options.pem_private_key.c_str(), options.pem_cert_chain.c_str()};
 
-  grpc_channel_credentials* c_creds = grpc_ssl_credentials_create(
+  grpc_channel_credentials* c_creds = grpc_ssl_credentials_create_with_request_type(
       options.pem_root_certs.empty() ? nullptr : options.pem_root_certs.c_str(),
-      options.pem_private_key.empty() ? nullptr : &pem_key_cert_pair, nullptr,
-      nullptr);
+      options.pem_private_key.empty() ? nullptr : &pem_key_cert_pair, options.server_certificate_request);
   return internal::WrapChannelCredentials(c_creds);
 }
 
