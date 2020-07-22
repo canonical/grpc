@@ -45,8 +45,15 @@
 
 grpc_ssl_credentials::grpc_ssl_credentials(
     const char* pem_root_certs, grpc_ssl_pem_key_cert_pair* pem_key_cert_pair,
-    const grpc_ssl_verify_peer_options* verify_options) {
-  build_config(pem_root_certs, pem_key_cert_pair, verify_options);
+    const grpc_ssl_verify_peer_options* verify_options,
+    const grpc_ssl_server_certificate_request_type server_request_type) {
+  build_config(pem_root_certs, pem_key_cert_pair, verify_options, server_request_type);
+}
+
+grpc_ssl_credentials::grpc_ssl_credentials(
+    const char* pem_root_certs, grpc_ssl_pem_key_cert_pair* pem_key_cert_pair,
+    const grpc_ssl_verify_peer_options* verify_options)
+    : grpc_ssl_credentials(pem_root_certs, pem_key_cert_pair, verify_options, GRPC_SSL_REQUEST_SERVER_CERTIFICATE_AND_VERIFY) {
 }
 
 grpc_ssl_credentials::~grpc_ssl_credentials() {
@@ -85,7 +92,8 @@ grpc_core::UniqueTypeName grpc_ssl_credentials::Type() {
 
 void grpc_ssl_credentials::build_config(
     const char* pem_root_certs, grpc_ssl_pem_key_cert_pair* pem_key_cert_pair,
-    const grpc_ssl_verify_peer_options* verify_options) {
+    const grpc_ssl_verify_peer_options* verify_options,
+    const grpc_ssl_server_certificate_request_type server_request_type) {
   config_.pem_root_certs = gpr_strdup(pem_root_certs);
   if (pem_key_cert_pair != nullptr) {
     GPR_ASSERT(pem_key_cert_pair->private_key != nullptr);
@@ -106,6 +114,8 @@ void grpc_ssl_credentials::build_config(
     // Otherwise set all options to default values
     memset(&config_.verify_options, 0, sizeof(verify_peer_options));
   }
+  config_.server_request_type = server_request_type == GRPC_SSL_REQUEST_SERVER_CERTIFICATE_BUT_DONT_VERIFY ?
+      TSI_REQUEST_SERVER_CERTIFICATE_BUT_DONT_VERIFY : TSI_REQUEST_SERVER_CERTIFICATE_AND_VERIFY;
 }
 
 void grpc_ssl_credentials::set_min_tls_version(
@@ -153,23 +163,15 @@ grpc_channel_credentials* grpc_ssl_credentials_create_ex(
 
 grpc_channel_credentials* grpc_ssl_credentials_create_with_request_type(
     const char* pem_root_certs, grpc_ssl_pem_key_cert_pair* pem_key_cert_pair,
-    grpc_ssl_server_certificate_request_type server_request_type) {
-  grpc_ssl_credentials* c = static_cast<grpc_ssl_credentials*>(
-      gpr_zalloc(sizeof(grpc_ssl_credentials)));
+    const grpc_ssl_server_certificate_request_type server_request_type) {
   GRPC_API_TRACE(
-      "grpc_ssl_credentials_create(pem_root_certs=%s, "
+      "grpc_ssl_credentials_create_with_request_type(pem_root_certs=%s, "
       "pem_key_cert_pair=%p, "
       "type=%d)",
       3, (pem_root_certs, pem_key_cert_pair, server_request_type));
 
-  c->base.type = GRPC_CHANNEL_CREDENTIALS_TYPE_SSL;
-  c->base.vtable = &ssl_vtable;
-  gpr_ref_init(&c->base.refcount, 1);
-  ssl_build_config(pem_root_certs, pem_key_cert_pair, nullptr, &c->config);
-
-  c->config.server_request_type = server_request_type == GRPC_SSL_REQUEST_SERVER_CERTIFICATE_BUT_DONT_VERIFY ?
-      TSI_REQUEST_SERVER_CERTIFICATE_BUT_DONT_VERIFY : TSI_REQUEST_SERVER_CERTIFICATE_AND_VERIFY;
-  return &c->base;
+  return new grpc_ssl_credentials(pem_root_certs, pem_key_cert_pair,
+                                  nullptr, server_request_type);
 }
 
 //

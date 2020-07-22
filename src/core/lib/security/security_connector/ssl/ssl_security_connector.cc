@@ -107,7 +107,6 @@ class grpc_ssl_channel_security_connector final
         config->pem_key_cert_pair->private_key != nullptr &&
         config->pem_key_cert_pair->cert_chain != nullptr;
     tsi_ssl_client_handshaker_options options;
-    GPR_DEBUG_ASSERT(pem_root_certs != nullptr);
     options.pem_root_certs = pem_root_certs;
     options.root_store = root_store;
     options.alpn_protocols =
