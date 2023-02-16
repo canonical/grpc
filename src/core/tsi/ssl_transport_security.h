@@ -166,8 +166,9 @@ struct tsi_ssl_client_handshaker_options {
   tsi_ssl_session_cache* session_cache;
   // tsi_ssl_key_logger is an instance used to log SSL keys to a file.
   tsi::TlsSessionKeyLoggerCache::TlsSessionKeyLogger* key_logger;
-  /* server_certificate_request, if set to TSI_REQUEST_SERVER_CERTIFICATE_BUT_DONT_VERIFY
-   * it will ignore any certificate verification errors */
+  /* server_certificate_request, if set to
+   * TSI_REQUEST_SERVER_CERTIFICATE_BUT_DONT_VERIFY it will ignore any
+   * certificate verification errors */
   tsi_server_certificate_request_type server_certificate_request;
 
   // skip server certificate verification.
