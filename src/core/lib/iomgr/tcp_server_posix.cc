@@ -236,13 +236,13 @@ static void on_read(void* arg, grpc_error_handle err) {
     }
 
     // For UNIX sockets, the accept call might not fill up the member sun_path
-    // of sockaddr_un, so explicitly call getpeername to get it.
+    // of sockaddr_un, so explicitly call getsockname to get it.
     if (grpc_is_unix_socket(&addr)) {
       memset(&addr, 0, sizeof(addr));
       addr.len = static_cast<socklen_t>(sizeof(struct sockaddr_storage));
       if (getsockname(fd, reinterpret_cast<struct sockaddr*>(addr.addr),
                       &(addr.len)) < 0) {
-        gpr_log(GPR_ERROR, "Failed getpeername: %s",
+        gpr_log(GPR_ERROR, "Failed getsockname: %s",
                 grpc_core::StrError(errno).c_str());
         close(fd);
         goto error;
