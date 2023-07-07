@@ -190,6 +190,7 @@ int main(int argc, char **argv) {
   printf("%lx", (unsigned long) grpc_set_ssl_roots_override_callback);
   printf("%lx", (unsigned long) grpc_ssl_credentials_create);
   printf("%lx", (unsigned long) grpc_ssl_credentials_create_ex);
+  printf("%lx", (unsigned long) grpc_ssl_credentials_create_with_request_type);
   printf("%lx", (unsigned long) grpc_composite_channel_credentials_create);
   printf("%lx", (unsigned long) grpc_composite_call_credentials_create);
   printf("%lx", (unsigned long) grpc_google_compute_engine_credentials_create);
