@@ -240,7 +240,7 @@ static void on_read(void* arg, grpc_error_handle err) {
     if (grpc_is_unix_socket(&addr)) {
       memset(&addr, 0, sizeof(addr));
       addr.len = static_cast<socklen_t>(sizeof(struct sockaddr_storage));
-      if (getpeername(fd, reinterpret_cast<struct sockaddr*>(addr.addr),
+      if (getsockname(fd, reinterpret_cast<struct sockaddr*>(addr.addr),
                       &(addr.len)) < 0) {
         gpr_log(GPR_ERROR, "Failed getpeername: %s",
                 grpc_core::StrError(errno).c_str());
