@@ -209,6 +209,12 @@ grpc_security_status grpc_ssl_credentials::InitializeClientHandshakerFactory(
   if (pem_root_certs == nullptr) {
     gpr_log(
         GPR_ERROR,
+        "Test error message of grpc");
+    gpr_log(
+        GPR_INFO,
+        "Test info message of grpc");
+    gpr_log(
+        GPR_ERROR,
         "Handshaker factory creation failed. pem_root_certs cannot be nullptr");
     return GRPC_SECURITY_ERROR;
   }
