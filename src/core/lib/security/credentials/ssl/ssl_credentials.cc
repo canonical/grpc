@@ -92,12 +92,6 @@ grpc_core::RefCountedPtr<grpc_channel_security_connector>
 grpc_ssl_credentials::create_security_connector(
     grpc_core::RefCountedPtr<grpc_call_credentials> call_creds,
     const char* target, grpc_core::ChannelArgs* args) {
-  if (config_.pem_root_certs == nullptr) {
-    gpr_log(GPR_ERROR,
-            "No root certs in config. Client-side security connector must have "
-            "root certs.");
-    return nullptr;
-  }
   absl::optional<std::string> overridden_target_name =
       args->GetOwnedString(GRPC_SSL_TARGET_NAME_OVERRIDE_ARG);
   auto* ssl_session_cache = args->GetObject<tsi::SslSessionLRUCache>();
@@ -206,12 +200,7 @@ grpc_security_status grpc_ssl_credentials::InitializeClientHandshakerFactory(
                            config->pem_key_cert_pair->private_key != nullptr &&
                            config->pem_key_cert_pair->cert_chain != nullptr;
   tsi_ssl_client_handshaker_options options;
-  if (pem_root_certs == nullptr) {
-    gpr_log(
-        GPR_ERROR,
-        "Handshaker factory creation failed. pem_root_certs cannot be nullptr");
-    return GRPC_SECURITY_ERROR;
-  }
+
   options.pem_root_certs = pem_root_certs;
   options.root_store = root_store;
   options.alpn_protocols =
