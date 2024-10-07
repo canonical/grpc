@@ -148,6 +148,10 @@ class UnixResolverFactory : public ResolverFactory {
   OrphanablePtr<Resolver> CreateResolver(ResolverArgs args) const override {
     return CreateSockaddrResolver(std::move(args), grpc_parse_unix);
   }
+
+  std::string GetDefaultAuthority(const URI& /*uri*/) const override {
+    return "localhost";
+  }
 };
 
 class UnixAbstractResolverFactory : public ResolverFactory {
