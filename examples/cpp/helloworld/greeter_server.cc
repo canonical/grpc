@@ -16,13 +16,14 @@
  *
  */
 
+
 #include <iostream>
 #include <memory>
 #include <string>
 
-#include "absl/flags/flag.h"
+#include "utility_functions.h"
+
 #include "absl/flags/parse.h"
-#include "absl/strings/str_format.h"
 
 #include <grpcpp/ext/proto_server_reflection_plugin.h>
 #include <grpcpp/grpcpp.h>
@@ -42,27 +43,39 @@ using helloworld::Greeter;
 using helloworld::HelloReply;
 using helloworld::HelloRequest;
 
-ABSL_FLAG(uint16_t, port, 50051, "Server port for the service");
-
 // Logic and data behind the server's behavior.
 class GreeterServiceImpl final : public Greeter::Service {
   Status SayHello(ServerContext* context, const HelloRequest* request,
                   HelloReply* reply) override {
-    std::string prefix("Hello ");
+    std::string prefix("Hello: ");
     reply->set_message(prefix + request->name());
     return Status::OK;
   }
 };
 
-void RunServer(uint16_t port) {
-  std::string server_address = absl::StrFormat("0.0.0.0:%d", port);
+void RunServer() {
+  // std::string server_address = absl::StrFormat("0.0.0.0:%d", port);
+  const std::string server_address = "unix:/tmp/test-multipassd.socket";
   GreeterServiceImpl service;
 
   grpc::EnableDefaultHealthCheckService(true);
   grpc::reflection::InitProtoReflectionServerBuilderPlugin();
   ServerBuilder builder;
   // Listen on the given address without any authentication mechanism.
-  builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+  grpc::SslServerCredentialsOptions opts(
+      GRPC_SSL_DONT_REQUEST_CLIENT_CERTIFICATE);
+  const std::string localHostKey{
+      Utils::loadFileToString("../../credentials/localhost.key")};
+  const std::string localHostCrt{
+      Utils::loadFileToString("../../credentials/localhost.crt")};
+  opts.pem_key_cert_pairs.push_back({localHostKey, localHostCrt});
+
+  std::shared_ptr<grpc::ServerCredentials> creds{
+      grpc::SslServerCredentials(opts)};
+
+  // builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+  builder.AddListeningPort(server_address, creds);
+
   // Register "service" as the instance through which we'll communicate with
   // clients. In this case it corresponds to an *synchronous* service.
   builder.RegisterService(&service);
@@ -77,6 +90,6 @@ void RunServer(uint16_t port) {
 
 int main(int argc, char** argv) {
   absl::ParseCommandLine(argc, argv);
-  RunServer(absl::GetFlag(FLAGS_port));
+  RunServer();
   return 0;
 }

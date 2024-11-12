@@ -20,7 +20,8 @@
 #include <memory>
 #include <string>
 
-#include "absl/flags/flag.h"
+#include "utility_functions.h"
+
 #include "absl/flags/parse.h"
 
 #include <grpcpp/grpcpp.h>
@@ -30,8 +31,6 @@
 #else
 #include "helloworld.grpc.pb.h"
 #endif
-
-ABSL_FLAG(std::string, target, "localhost:50051", "Server address");
 
 using grpc::Channel;
 using grpc::ClientContext;
@@ -81,12 +80,28 @@ int main(int argc, char** argv) {
   // Instantiate the client. It requires a channel, out of which the actual RPCs
   // are created. This channel models a connection to an endpoint specified by
   // the argument "--target=" which is the only expected argument.
-  std::string target_str = absl::GetFlag(FLAGS_target);
+
+  const std::string target_str = "unix:/tmp/test-multipassd.socket";
+
   // We indicate that the channel isn't authenticated (use of
   // InsecureChannelCredentials()).
+
+  auto opts = grpc::SslCredentialsOptions();
+  opts.pem_root_certs = Utils::loadFileToString("../../credentials/root.crt");
+  opts.server_certificate_request =
+      GRPC_SSL_REQUEST_SERVER_CERTIFICATE_AND_VERIFY;
+  // opts.pem_cert_chain = ;
+  // opts.pem_private_key = ;
+
+  auto channel = grpc::CreateChannel(target_str, grpc::SslCredentials(opts));
+
   GreeterClient greeter(
-      grpc::CreateChannel(target_str, grpc::InsecureChannelCredentials()));
-  std::string user("world");
+      grpc::CreateChannel(target_str, grpc::SslCredentials(opts)));
+
+  // GreeterClient greeter(
+  // grpc::CreateChannel(target_str, grpc::InsecureChannelCredentials()));
+
+  std::string user("multipass folks");
   std::string reply = greeter.SayHello(user);
   std::cout << "Greeter received: " << reply << std::endl;
 
