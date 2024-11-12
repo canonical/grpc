@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
   // InsecureChannelCredentials()).
 
   auto opts = grpc::SslCredentialsOptions();
-  opts.pem_root_certs = Utils::loadFileToString("../../credentials/root.crt");
+  opts.pem_root_certs = Utils::loadFileToString("../../credentials/multipass/root_ca_cert.crt");
   opts.server_certificate_request =
       GRPC_SSL_REQUEST_SERVER_CERTIFICATE_AND_VERIFY;
   // opts.pem_cert_chain = ;

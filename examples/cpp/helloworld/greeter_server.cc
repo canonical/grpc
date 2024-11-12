@@ -65,9 +65,9 @@ void RunServer() {
   grpc::SslServerCredentialsOptions opts(
       GRPC_SSL_DONT_REQUEST_CLIENT_CERTIFICATE);
   const std::string localHostKey{
-      Utils::loadFileToString("../../credentials/localhost.key")};
+      Utils::loadFileToString("../../credentials/multipass/multipass_test_server_key.key")};
   const std::string localHostCrt{
-      Utils::loadFileToString("../../credentials/localhost.crt")};
+      Utils::loadFileToString("../../credentials/multipass/signed_server_cert.crt")};
   opts.pem_key_cert_pairs.push_back({localHostKey, localHostCrt});
 
   std::shared_ptr<grpc::ServerCredentials> creds{
