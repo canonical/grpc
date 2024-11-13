@@ -93,8 +93,6 @@ int main(int argc, char** argv) {
   // opts.pem_cert_chain = ;
   // opts.pem_private_key = ;
 
-  auto channel = grpc::CreateChannel(target_str, grpc::SslCredentials(opts));
-
   GreeterClient greeter(
       grpc::CreateChannel(target_str, grpc::SslCredentials(opts)));
 
