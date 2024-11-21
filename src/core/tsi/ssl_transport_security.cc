@@ -2065,7 +2065,9 @@ tsi_result tsi_create_ssl_client_handshaker_factory_with_options(
   if (factory == nullptr) return TSI_INVALID_ARGUMENT;
   *factory = nullptr;
   if (options->pem_root_certs == nullptr && options->root_store == nullptr &&
-      !options->skip_server_certificate_verification && options->server_certificate_request == TSI_REQUEST_SERVER_CERTIFICATE_AND_VERIFY) {
+      !options->skip_server_certificate_verification &&
+      options->server_certificate_request ==
+          TSI_REQUEST_SERVER_CERTIFICATE_AND_VERIFY) {
     return TSI_INVALID_ARGUMENT;
   }
 
@@ -2128,8 +2130,9 @@ tsi_result tsi_create_ssl_client_handshaker_factory_with_options(
     }
 #endif
     if (OPENSSL_VERSION_NUMBER < 0x10100000 ||
-        (options->root_store == nullptr &&
-         options->pem_root_certs != nullptr && options->server_certificate_request == TSI_REQUEST_SERVER_CERTIFICATE_AND_VERIFY)) {
+        (options->root_store == nullptr && options->pem_root_certs != nullptr &&
+         options->server_certificate_request ==
+             TSI_REQUEST_SERVER_CERTIFICATE_AND_VERIFY)) {
       result = ssl_ctx_load_verification_certs(
           ssl_context, options->pem_root_certs, strlen(options->pem_root_certs),
           nullptr);
@@ -2199,12 +2202,12 @@ tsi_result tsi_create_ssl_client_handshaker_factory_with_options(
 
 #endif
   switch (options->server_certificate_request) {
-  case TSI_REQUEST_SERVER_CERTIFICATE_BUT_DONT_VERIFY:
-    SSL_CTX_set_verify(ssl_context, SSL_VERIFY_NONE, nullptr);
-    break;
-  case TSI_REQUEST_SERVER_CERTIFICATE_AND_VERIFY:
-    SSL_CTX_set_verify(ssl_context, SSL_VERIFY_PEER, nullptr);
-    break;
+    case TSI_REQUEST_SERVER_CERTIFICATE_BUT_DONT_VERIFY:
+      SSL_CTX_set_verify(ssl_context, SSL_VERIFY_NONE, nullptr);
+      break;
+    case TSI_REQUEST_SERVER_CERTIFICATE_AND_VERIFY:
+      SSL_CTX_set_verify(ssl_context, SSL_VERIFY_PEER, nullptr);
+      break;
   }
 
   *factory = impl;
